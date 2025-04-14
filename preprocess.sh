@@ -1,6 +1,6 @@
 
-DEBUG_MODE=True
-NAME="Test1"
+DEBUG_MODE=False
+NAME="extract_5_centerpad_nv0.4"
 OUTPUT_DIR="./working/"
 DATA_ROOT="./Data"
 FS=32000
@@ -12,6 +12,7 @@ FMIN=50
 FMAX=14000
 EXCLUDE_HUMAN_VOICE=True
 OVERSAMPLE_THRESHOLD=200
+# not working
 TARGET_DURATION=5.0
 TARGET_SHAPE_X=256
 TARGET_SHAPE_Y=256
@@ -19,9 +20,9 @@ PREPROCESSED_NV_DIR="./nvlist0.4.pkl"
 # if provided, use pre-processed novoicelist. if not, process on-the-fly
 PADDING="centerpad"
 # Available options : "cyclic", "centerpad", "leftpad" for padding
-EXTRACTION="forward"
+EXTRACTION="random"
 # Available options :  "random", "forward" for extraction
-N_EXTRACT=30
+N_EXTRACT=5
 # Available options : positive integers for n_extract, insert big number to get max samples
 NORMALIZE=True
 
