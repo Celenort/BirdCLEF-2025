@@ -70,7 +70,7 @@ def parse_args():
     parser.add_argument('--padding', type=str, choices=["leftpad", "centerpad", "cyclic"], default="centerpad")
     parser.add_argument('--extraction', type=str, choices=["random", "forward"], default="random")
 
-    parser.add_argument('--n_extract', type=int, default=1) # 0 for all
+    parser.add_argument('--n_extract', type=int, default=1) # big number to extract all
     parser.add_argument('--normalize', type=str2bool, default=True)
 
 
