@@ -11,19 +11,19 @@ N_MELS=128
 FMIN=50
 FMAX=14000
 EXCLUDE_HUMAN_VOICE=True
-NOHUMAN_DURATION=5.0
 OVERSAMPLE_THRESHOLD=200
 TARGET_DURATION=5.0
 TARGET_SHAPE_X=256
 TARGET_SHAPE_Y=256
-PREPROCESSED_NV_DIR="./nvlist.pkl"
+PREPROCESSED_NV_DIR="./nvlist0.4.pkl"
+# if provided, use pre-processed novoicelist. if not, process on-the-fly
 PADDING="centerpad"
-EXTRACTION="random"
-N_EXTRACT=1
+# Available options : "cyclic", "centerpad", "leftpad" for padding
+EXTRACTION="forward"
+# Available options :  "random", "forward" for extraction
+N_EXTRACT=30
+# Available options : positive integers for n_extract, insert big number to get max samples
 NORMALIZE=True
-# will support cyclic, zero padding for padding
-# will support random, forward, center for extraction
-# will support positive integers for n_extract, 0 for all
 
 python3 preprocess.py \
   --debug_mode $DEBUG_MODE \
@@ -38,7 +38,6 @@ python3 preprocess.py \
   --fmin $FMIN \
   --fmax $FMAX \
   --exclude_human_voice $EXCLUDE_HUMAN_VOICE \
-  --nohuman_duration $NOHUMAN_DURATION \
   --oversample_threshold $OVERSAMPLE_THRESHOLD \
   --target_duration $TARGET_DURATION \
   --target_shape $TARGET_SHAPE_X $TARGET_SHAPE_Y \
