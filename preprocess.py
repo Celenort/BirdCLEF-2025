@@ -225,7 +225,12 @@ if __name__ == '__main__':
                     length = r['end']-r['start']+1
                     lengths.append((r['start'], length))
                     total += length
-                start_idx = random.randint(0, total-1)
+                if config.EXTRACTION == "random" :
+                    start_idx = random.randint(0, total-1)
+                elif config.EXTRACTION == "first" :
+                    start_idx = 0
+                else :
+                    raise Exception('Only supports \"random\"and \"first\"')
                 for start, length in lengths :
                     if start_idx < length :
                         start_frame = start + start_idx
@@ -233,11 +238,24 @@ if __name__ == '__main__':
                     start_idx -= length
 
             if len(audio_data) < target_samples:
-                left_pad = int((target_samples - len(audio_data))/2)
-                right_pad = int(target_samples-len(audio_data)-left_pad)
-                audio_data = np.pad(audio_data, (left_pad, right_pad), mode='constant') # zero padding at center
+                if config.PADDING == "centerpad" :
+                    left_pad = int((target_samples - len(audio_data))/2)
+                    right_pad = int(target_samples-len(audio_data)-left_pad)
+                    audio_data = np.pad(audio_data, (left_pad, right_pad), mode='constant') # zero padding at center
+                elif config.PADDING == "leftpad" :
+                    audio_data = np.pad(audio_data, (int(target_samples-len(audio_data)), 0), mode='constant')
+                elif config.PADDING == "cyclic" :
+                    n_copy = math.ceil(target_samples / len(audio_data))
+                    audio_data = np.concatenate([audio_data]* n_copy)
+                else :
+                    raise Exception('Only supports \"centerpad\", \"leftpad\" and \"cyclic\"')
             if start_frame == -1 : # didn't pass through nv
-                start_frame = random.randint(0, len(audio_data)-target_samples)
+                if config.EXTRACTION == "random" :
+                    start_frame = random.randint(0, len(audio_data)-target_samples)
+                elif config.EXTRACTION == "first" :
+                    start_frame = 0
+                else :
+                    raise Exception('Only supports \"random\"and \"first\"')
             
             cropped_audio = audio_data[start_frame:start_frame+target_samples]
 
