@@ -246,12 +246,12 @@ if __name__ == '__main__':
     print("Loading human voice data...")
     nv_file_dict = None
     if config.PREPARED_NV == "" :
-        print("Preprocessed NoVoice pickle NOT detected")#########################################################
+        print("Preprocessed NoVoice pickle NOT detected")
         with open(config.VOICE_DIR, "rb") as fr :
             voice_dict = pickle.load(fr)
             voice_file_dict = {config.DATA_ROOT+key[27:]: value for key, value in voice_dict.items()} # remove /kaggle/input/birdclef-2025/train_audio/
             nv_file_dict = voice2novoice(config, voice_file_dict)
-            with open(config.NV_OUT_DIR, "wb") as f : #############################################################
+            with open(config.NV_OUT_DIR, "wb") as f : 
                 pickle.dump(nv_file_dict, f, protocol=pickle.HIGHEST_PROTOCOL)
     else :
         with open(config.PREPARED_NV, "rb") as fr :
@@ -296,6 +296,7 @@ if __name__ == '__main__':
 
                 cropped_audio = audio_data[index[0]:index[1]+1]
                 mel_spec = audio2melspec(cropped_audio, config.NORMALIZE)
+                print(mel_spec.shape)
                 if mel_spec.shape != config.TARGET_SHAPE:
                     mel_spec = cv2.resize(mel_spec, config.TARGET_SHAPE, interpolation=cv2.INTER_LINEAR)
                 sample_label = row.samplename + '-' + str(j)
