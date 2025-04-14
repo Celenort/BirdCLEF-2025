@@ -296,7 +296,7 @@ if __name__ == '__main__':
 
                 cropped_audio = audio_data[index[0]:index[1]+1]
                 mel_spec = audio2melspec(cropped_audio, config.NORMALIZE)
-                print(mel_spec.shape)
+                #print(mel_spec.shape)
                 if mel_spec.shape != config.TARGET_SHAPE:
                     mel_spec = cv2.resize(mel_spec, config.TARGET_SHAPE, interpolation=cv2.INTER_LINEAR)
                 sample_label = row.samplename + '-' + str(j)
