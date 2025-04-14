@@ -36,6 +36,8 @@ class Config:
     PREPARED_NV: str
     PADDING: str
     EXTRACTION: str
+    N_EXTRACT: int
+    NORMALIZE: str
 
 def str2bool(v):
     if isinstance(v, bool):
@@ -66,8 +68,12 @@ def parse_args():
     parser.add_argument('--target_shape', type=int, nargs=2, default=[256, 256])
 
     parser.add_argument('--prepared_nv', type=str, default="./nvlist.pkl")
-    parser.add_argument('--padding', type=str, choices=["zero", "cyclic"], default="zero")
+    parser.add_argument('--padding', type=str, choices=["leftpad", "centerpad", "cyclic"], default="centerpad")
     parser.add_argument('--extraction', type=str, choices=["random", "forward", "center"], default="random")
+
+    parser.add_argument('--n_extract', type=int, default=1) # 0 for all
+    parser.add_argument('--normalize', type=str2bool, default=True)
+
 
     return parser.parse_args()
 
@@ -92,7 +98,9 @@ def get_config():
         TARGET_SHAPE=tuple(args.target_shape),
         PREPARED_NV=args.prepared_nv,
         PADDING=args.padding,
-        EXTRACTION=args.extraction
+        EXTRACTION=args.extraction,
+        N_EXTRACT=args.n_extract,
+        NORMALIZE=args.normalize
     )
     return config
 
@@ -121,7 +129,7 @@ def voice2novoice (config, vdict) :
         nv_file_dict[dir[19:]] = nvlist
     return nv_file_dict
 
-def audio2melspec(audio_data):
+def audio2melspec(audio_data, donorm: True):
     if np.isnan(audio_data).any():
         mean_signal = np.nanmean(audio_data)
         audio_data = np.nan_to_num(audio_data, nan=mean_signal)
@@ -138,11 +146,10 @@ def audio2melspec(audio_data):
     )
 
     mel_spec_db = librosa.power_to_db(mel_spec, ref=np.max)
-    mel_spec_norm = (mel_spec_db - mel_spec_db.min()) / (mel_spec_db.max() - mel_spec_db.min() + 1e-8)
-    mel_spec_power_norm = (mel_spec - mel_spec.min()) / (mel_spec.max() - mel_spec.min() + 1e-8)
-
-    
-    return (mel_spec_norm, mel_spec_db, mel_spec_norm, mel_spec_power_norm)
+    if donorm :
+        return (mel_spec_db - mel_spec_db.min()) / (mel_spec_db.max() - mel_spec_db.min() + 1e-8)
+    else : 
+        return mel_spec_db
 
 
 if __name__ == '__main__':
@@ -185,7 +192,6 @@ if __name__ == '__main__':
 
 
 
-    ###############################################################################
 
     
     print("Starting audio processing...")
@@ -259,7 +265,7 @@ if __name__ == '__main__':
             
             cropped_audio = audio_data[start_frame:start_frame+target_samples]
 
-            mel_spec = audio2melspec(cropped_audio)[0]
+            mel_spec = audio2melspec(cropped_audio, config.NORMALIZE)
 
             if mel_spec.shape != config.TARGET_SHAPE:
                 mel_spec = cv2.resize(mel_spec, config.TARGET_SHAPE, interpolation=cv2.INTER_LINEAR)
@@ -280,8 +286,3 @@ if __name__ == '__main__':
 
 
 
-
-################################################################################
-
-
-## Changelog : Remove cyclic padding, only add zero padding (equally on both sides)

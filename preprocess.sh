@@ -17,11 +17,13 @@ TARGET_DURATION=5.0
 TARGET_SHAPE_X=256
 TARGET_SHAPE_Y=256
 PREPROCESSED_NV_DIR="./nvlist.pkl"
-PADDING="zero"
+PADDING="centerpad"
 EXTRACTION="random"
+N_EXTRACT=1
+NORMALIZE=True
 # will support cyclic, zero padding for padding
 # will support random, forward, center for extraction
-
+# will support positive integers for n_extract, 0 for all
 
 python3 preprocess.py \
   --debug_mode $DEBUG_MODE \
@@ -42,4 +44,6 @@ python3 preprocess.py \
   --target_shape $TARGET_SHAPE_X $TARGET_SHAPE_Y \
   --prepared_nv "${PREPROCESSED_NV_DIR}" \
   --padding $PADDING \
-  --extraction $EXTRACTION
+  --extraction $EXTRACTION \
+  --n_extract $N_EXTRACT \
+  --normalize $NORMALIZE
