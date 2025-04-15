@@ -8,7 +8,7 @@ import numpy as np
 from tqdm import tqdm
 import pickle
 import random
-import torch
+#import torch
 import warnings
 import argparse
 from dataclasses import dataclass

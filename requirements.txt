@@ -2,4 +2,3 @@ opencv-python
 librosa
 pandas
 tqdm
-torch==2.5.1+cu121

@@ -1,4 +1,3 @@
-
 DEBUG_MODE=False
 # NAME="extract_5_centerpad_nv0.4"
 OUTPUT_DIR="./working"
@@ -31,8 +30,8 @@ LOGFILE="execution_log.txt"
 
 for N_FFT in 1024 2048 4096; do
     for N_MELS in 128 256 512; do
-        TARGET_SHAPE_X=256
-        TARGET_SHAPE_Y=512
+        TARGET_SHAPE_X=512
+        TARGET_SHAPE_Y=256
         
         START_TIME=$(date +%s)
         START_HUMAN=$(date '+%Y-%m-%d %H:%M:%S')
