@@ -170,7 +170,7 @@ def sample_from_ranges(ranges, length, n_segment, israndom=True):
             total_slots += max_in_segment
 
     if total_slots == 0:
-        raise ValueError("Not enough spaces to cut")
+        return None
 
     n_segment = min(n_segment, total_slots)
 
@@ -246,12 +246,12 @@ if __name__ == '__main__':
     print("Loading human voice data...")
     nv_file_dict = None
     if config.PREPARED_NV == "" :
-        print("Preprocessed NoVoice pickle NOT detected")
+        print("Preprocessed NoVoice pickle NOT detected")#########################################################
         with open(config.VOICE_DIR, "rb") as fr :
             voice_dict = pickle.load(fr)
             voice_file_dict = {config.DATA_ROOT+key[27:]: value for key, value in voice_dict.items()} # remove /kaggle/input/birdclef-2025/train_audio/
             nv_file_dict = voice2novoice(config, voice_file_dict)
-            with open(config.NV_OUT_DIR, "wb") as f : 
+            with open(config.NV_OUT_DIR, "wb") as f : #############################################################
                 pickle.dump(nv_file_dict, f, protocol=pickle.HIGHEST_PROTOCOL)
     else :
         with open(config.PREPARED_NV, "rb") as fr :
@@ -262,12 +262,14 @@ if __name__ == '__main__':
     print(f"{'DEBUG MODE - Processing only 50 samples' if config.DEBUG_MODE else 'FULL MODE - Processing all samples'}")
     start_time = time.time()
 
-    all_bird_data = {}
+    # all_bird_data = {}
     errors = []
     padcount = 0
     working_csv = train_df.iloc[0:0]
     working_csv['samplename'] = []
     working_csv['startidx'] = []
+
+    errorlog = open(config.NAME+'_err.txt', "w")
 
     for i, row in tqdm(working_df.iterrows(), total=total_samples): # working_df.iterrows(): 
         if config.DEBUG_MODE and i >= 50 : # previously config.N_MAX but hard setting this value does not change anything
@@ -290,38 +292,57 @@ if __name__ == '__main__':
                 available_range = [{'start': 0, 'end': len(audio_data)-1}]
             indexes = sample_from_ranges(available_range, target_samples, config.N_EXTRACT, config.EXTRACTION)
 
+            if indexes is None:
+                raise ValueError("Not enough spaces to cut")
+
             original_row = train_df.iloc[i]
 
             for j, index in enumerate(indexes) :
 
                 cropped_audio = audio_data[index[0]:index[1]+1]
                 mel_spec = audio2melspec(cropped_audio, config.NORMALIZE)
-                #print(mel_spec.shape)
                 if mel_spec.shape != config.TARGET_SHAPE:
                     mel_spec = cv2.resize(mel_spec, config.TARGET_SHAPE, interpolation=cv2.INTER_LINEAR)
-                sample_label = row.samplename + '-' + str(j)
-                all_bird_data[sample_label] = mel_spec.astype(np.float32)
+                # sample_label = row.samplename + '-' + str(j)
+                # all_bird_data[sample_label] = mel_spec.astype(np.float32)
+
+                fullpath = config.OUTPUT_DIR + '/' + config.NAME + '/' + row.filename[:-4] + '-' +str(j) + '.npy'
+
+                directory = '/'.join(fullpath.split('/')[:-1])
+
+                if not os.path.exists(directory):
+                    os.makedirs(directory)
+        
+                np.save(fullpath, mel_spec.astype(np.float32))
+
 
                 newrow = original_row
                 fname = newrow['filename']
-                newrow['samplename'] = fname.split('/')[0] + '-' + fname.split('/')[-1].split('.')[0] + '-' + str(j)
+                newrow['samplename'] = fname.split('/')[0] + '/' + fname.split('/')[-1].split('.')[0] + '-' + str(j) + '.npy'
                 newrow['startidx'] = index[0]
                 #print(newrow['samplename'])
                 working_csv.loc[len(working_csv)] = newrow
+
             
         except Exception as e:
-            print(f"Error processing {row.filepath}: {e}")
+            errorlog.write(f"Error processing {row.filepath}: {e}\n")
             errors.append((row.filepath, str(e)))
 
     end_time = time.time()
     print(f"Processing completed in {end_time - start_time:.2f} seconds")
-    print(f"Successfully processed {len(all_bird_data)} clips out of {total_samples} total")
+    # print(f"Successfully processed {len(all_bird_data)} clips out of {total_samples} total")
     print(f"Padded {padcount} files because it was too short")
     print(f"Failed to process {len(errors)} files")
 
-    np.save(config.NAME + '.npy', all_bird_data)
+    # np.save(config.NAME + '.npy', all_bird_data)
+
+    with open(config.NAME+'.txt', "w") as file:
+        file.write(f"Processing completed in {end_time - start_time:.2f} seconds\n")
+        file.write(f"Padded {padcount} files because it was too short\n")
+        file.write(f"Failed to process {len(errors)} files\n")
 
     working_csv.to_csv(config.NAME + '.csv', index=False)
+    errorlog.close()
 
 
 ############## CODE SNIPPET FROM original main
