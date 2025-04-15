@@ -29,8 +29,8 @@ NORMALIZE=True
 LOGFILE="execution_log.txt"
 
 
-for N_FFT in 1024 2048 4096; do
-    for N_MELS in 128 256 512; do
+for N_FFT in 2048 4096; do # 2048 4096; do
+    for N_MELS in 128 256 512; do #128 256 
         TARGET_SHAPE_X=256
         TARGET_SHAPE_Y=512
         
