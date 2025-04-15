@@ -27,11 +27,10 @@ NORMALIZE=True
 
 LOGFILE="execution_log.txt"
 
-
-for N_FFT in 1024 2048 4096; do
-    for N_MELS in 128 256 512; do
-        TARGET_SHAPE_X=512
-        TARGET_SHAPE_Y=256
+for N_FFT in 2048 4096; do # 2048 4096; do
+    for N_MELS in 128 256 512; do #128 256 
+        TARGET_SHAPE_X=256
+        TARGET_SHAPE_Y=512
         
         START_TIME=$(date +%s)
         START_HUMAN=$(date '+%Y-%m-%d %H:%M:%S')
