@@ -2,3 +2,5 @@ opencv-python
 librosa
 pandas
 tqdm
+timm
+torch
