@@ -1,4 +1,4 @@
-DEBUG_MODE=True
+DEBUG_MODE=False
 NAME="extract_5_centerpad_nv0.4"
 OUTPUT_DIR="./working"
 DATA_ROOT="./Data"
