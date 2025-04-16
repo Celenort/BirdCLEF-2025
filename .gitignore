@@ -2,3 +2,4 @@ Data/
 *.npy
 *.zip
 working/
+weight*/
