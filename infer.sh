@@ -20,6 +20,8 @@ USE_SMOOTHING=False
 SMOOTHING_THRES=0.2
 USE_SPECIFIC_FOLDS=False
 FOLDS="0, 1, 2, 3, 4"
+smooth_1=0.1
+smooth_2=0.05
 
 python3 infer.py \
   --debug_mode $DEBUG_MODE \
@@ -42,6 +44,8 @@ python3 infer.py \
   --use_smoothing $USE_SMOOTHING \
   --smoothing_thres $SMOOTHING_THRES \
   --use_specific_folds $USE_SPECIFIC_FOLDS \
-  --folds "${FOLDS}"
+  --folds "${FOLDS}" \
+  --smooth_1 $smooth_1 \
+  --smooth_2 $smooth_2
 
 
