@@ -1,0 +1,3 @@
+Processing completed in 5192.32 seconds
+Padded 2314 files because it was too short
+Failed to process 376 files

@@ -25,7 +25,7 @@ N_EXTRACT=1
 # Available options : positive integers for n_extract, insert big number to get max samples
 NORMALIZE=True
 
-for HOP_LENGTH in 16 32 64; do # 2048 4096; do
+for HOP_LENGTH in 32 64 256; do # 2048 4096; do
 
 	START_TIME=$(date +%s)
 	START_HUMAN=$(date '+%Y-%m-%d %H:%M:%S')
