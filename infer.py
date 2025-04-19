@@ -54,6 +54,8 @@ class CFG:
     submission_csv: str
     taxonomy_csv: str
     model_path: str
+    smooth_1: float
+    smooth_2: float
 
 def str2bool(v):
     if isinstance(v, bool):
@@ -87,6 +89,8 @@ def parse_args():
     parser.add_argument('--smoothing_thres', type=float, default=0.2)
     parser.add_argument('--use_specific_folds', type=str2bool, default=False)
     parser.add_argument('--folds', type=str, default="0,")
+    parser.add_argument('--smooth_1', type=float, default=0.2)
+    parser.add_argument('--smooth_2', type=float, default=None)
 
     return parser.parse_args()
 
@@ -121,7 +125,9 @@ def get_config():
         test_soundscapes='/train_soundscapes',
         submission_csv='/sample_submission.csv',
         taxonomy_csv = '/taxonomy.csv',
-        model_path = './weight-1024-128-512-512'
+        model_path = './weight-1024-128-512-512', 
+        smooth_1 = args.smooth_1,
+        smooth_2 = args.smooth_2
     )
     return config
 ###################################################
@@ -168,7 +174,7 @@ class BirdCLEFModel(nn.Module):
         
         logits = self.classifier(features)
         return logits
-def smooth_submission(submission_path):
+def smooth_submission(submission_path, coeff1, coeff2=None):
     """
     Post-process the submission CSV by smoothing predictions to enforce temporal consistency.
     
@@ -190,13 +196,20 @@ def smooth_submission(submission_path):
         sub_group = sub.iloc[idx].copy()
         predictions = sub_group[cols].values
         new_predictions = predictions.copy()
-            
-        if predictions.shape[0] > 1:
+        if not coeff2 and predictions.shape[0] > 1:
             # Smooth the predictions using neighboring segments
-            new_predictions[0] = (predictions[0] * 0.8) + (predictions[1] * 0.2)
-            new_predictions[-1] = (predictions[-1] * 0.8) + (predictions[-2] * 0.2)
+            new_predictions[0] = (predictions[0] * (1.0-coeff1)) + (predictions[1] * coeff1)
+            new_predictions[-1] = (predictions[-1] * (1.0-coeff1)) + (predictions[-2] * coeff1)
             for i in range(1, predictions.shape[0]-1):
-                new_predictions[i] = (predictions[i-1] * 0.2) + (predictions[i] * 0.6) + (predictions[i+1] * 0.2)
+                new_predictions[i] = (predictions[i-1] * (coeff1)) + (predictions[i] * (1.0- 2 * coeff1)) + (predictions[i+1] * coeff1)    
+        elif predictions.shape[0] > 3:
+            # Smooth the predictions using neighboring segments
+            new_predictions[0] = (predictions[0] * (1.0-coeff1-coeff2)) + (predictions[1] * coeff1) + (predictions[2] * coeff2)
+            new_predictions[1] = (predictions[0] * coeff1) + (predictions[1] * (1.0-2 * coeff1-coeff2)) + (predictions[2] * coeff1) + (predictions[3] * coeff2)
+            new_predictions[-1] = (predictions[-1] * (1.0-coeff1-coeff2)) + (predictions[-2] * coeff1) + (predictions[-3] * coeff2)
+            new_predictions[-2] = (predictions[-1] * coeff1) + (predictions[-2] * (1.0-2 * coeff1-coeff2)) + (predictions[-3] * coeff1) + (predictions[-4] * coeff2)
+            for i in range(2, predictions.shape[0]-2):
+                new_predictions[i] = (predictions[i-2] * coeff2) + (predictions[i-1] * coeff1) + (predictions[i] * (1.0-2 * (coeff1+coeff2))) + (predictions[i+1] * coeff1) + (predictions[i+2] * coeff2)
         # Replace the smoothed values in the submission dataframe
         sub.iloc[idx, 1:] = new_predictions
         
@@ -458,7 +471,7 @@ def main():
     submission_path = 'submission.csv'
     submission_df.to_csv(submission_path, index=False)
     if cfg.use_smoothing :
-        smooth_submission(submission_path)
+        smooth_submission(submission_path, cfg.smooth_1, cfg.smooth_2)
 
     print(f"Submission saved to {submission_path}")
     
