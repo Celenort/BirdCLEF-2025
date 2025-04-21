@@ -9,7 +9,7 @@ N_FFT=1024
 N_MELS=128
 FMIN=20
 FMAX=16000
-EXCLUDE_HUMAN_VOICE=True
+EXCLUDE_HUMAN_VOICE=False
 OVERSAMPLE_THRESHOLD=200
 TARGET_SHAPE_X=256
 TARGET_SHAPE_Y=256
@@ -25,15 +25,15 @@ N_EXTRACT=1
 # Available options : positive integers for n_extract, insert big number to get max samples
 NORMALIZE=True
 
-for HOP_LENGTH in 32 64 256; do # 2048 4096; do
+for HOP_LENGTH in 128; do # 2048 4096; do
 
 	START_TIME=$(date +%s)
 	START_HUMAN=$(date '+%Y-%m-%d %H:%M:%S')
                         
-	NAME="${N_FFT}_${N_MELS}_${TARGET_SHAPE_X}_${TARGET_SHAPE_Y}_${HOP_LENGTH}"
+	NAME="SOUNDSCAPE_${N_FFT}_${N_MELS}_${TARGET_SHAPE_X}_${TARGET_SHAPE_Y}_${HOP_LENGTH}"
 	echo "Start processing : $NAME ($START_HUMAN)"
 
-	python3 preprocess.py \
+	python3 preprocess_ss.py \
 	--debug_mode $DEBUG_MODE \
 	--name $NAME \
 	--output_dir $OUTPUT_DIR \
@@ -59,11 +59,11 @@ for HOP_LENGTH in 32 64 256; do # 2048 4096; do
 	DURATION=$((END_TIME - START_TIME))
 	echo "$NAME | Start: $START_HUMAN | End: ${DURATION}s"
 
-	cd $OUTPUT_DIR/$NAME
-	zip -r ../$NAME.zip ./
-	cd ..
-	rm -rf $NAME
-	cd ..
+	#cd $OUTPUT_DIR/$NAME
+	#zip -r ../$NAME.zip ./
+	#cd ..
+	#rm -rf $NAME
+	#cd ..
 done
 
 

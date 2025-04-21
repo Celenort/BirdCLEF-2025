@@ -472,11 +472,7 @@ def main():
     submission_path = 'submission.csv'
     submission_df.to_csv(submission_path, index=False)
     if cfg.use_smoothing :
-<<<<<<< HEAD
-        smooth_submission(submission_path, cfg.smoothing_thres)
-=======
         smooth_submission(submission_path, cfg.smooth_1, cfg.smooth_2)
->>>>>>> 319f9e143426f53eac03dd449295ff6cbfff03c3
 
     print(f"Submission saved to {submission_path}")
     
