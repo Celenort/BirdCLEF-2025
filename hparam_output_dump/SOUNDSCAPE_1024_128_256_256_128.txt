@@ -1,0 +1,3 @@
+Processing completed in 49484.15 seconds
+Padded 0 files because it was too short
+Failed to process 0 files

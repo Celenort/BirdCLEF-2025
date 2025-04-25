@@ -1,4 +1,4 @@
-DEBUG_MODE=True
+DEBUG_MODE=False
 OUTPUT_DIR="./working"
 DATA_ROOT="./Data"
 FS=32000
